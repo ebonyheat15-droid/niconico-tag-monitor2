@@ -2,8 +2,8 @@ name: niconico-tag-monitor
 on:
   schedule:
     - cron: "*/10 * * * *"   # 10分おき
-  workflow_dispatch:
-  repository_dispatch:
+  workflow_dispatch:         # 手動実行
+  repository_dispatch:       # 外部トリガ（任意）
     types: [run-nico]
 
 jobs:
@@ -20,5 +20,10 @@ jobs:
           echo "DISCORD_WEBHOOK_URL=${{ secrets.DISCORD_WEBHOOK_URL }}" >> $GITHUB_ENV
           echo "VIDEOS=${{ secrets.VIDEOS }}" >> $GITHUB_ENV
           echo "REQUIRED_TAGS=${{ secrets.REQUIRED_TAGS }}" >> $GITHUB_ENV
+          echo "TEAMS_WEBHOOK_URL=${{ secrets.TEAMS_WEBHOOK_URL }}" >> $GITHUB_ENV
       - name: Run monitor
         run: python monitor_niconico.py --state state.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: state-json
+          path: state.json
