@@ -1,0 +1,24 @@
+name: niconico-tag-monitor
+on:
+  schedule:
+    - cron: "*/10 * * * *"   # 10分おき
+  workflow_dispatch:
+  repository_dispatch:
+    types: [run-nico]
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements.txt
+      - name: Set env
+        run: |
+          echo "DISCORD_WEBHOOK_URL=${{ secrets.DISCORD_WEBHOOK_URL }}" >> $GITHUB_ENV
+          echo "VIDEOS=${{ secrets.VIDEOS }}" >> $GITHUB_ENV
+          echo "REQUIRED_TAGS=${{ secrets.REQUIRED_TAGS }}" >> $GITHUB_ENV
+      - name: Run monitor
+        run: python monitor_niconico.py --state state.json
